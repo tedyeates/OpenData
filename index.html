@@ -40,6 +40,10 @@
 	<!-- Theme style  -->
 	<link rel="stylesheet" href="css/style.css">
 
+	<!--leaflet css -->
+	 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.4.0/dist/leaflet.css"
+   integrity="sha512-puBpdR0798OZvTTbP4A8Ix/l+A4dHDD0DGqYW6RQ+9jxkRFclaxxQb/SJAWZfWAkuyeQUytO7+7N4QKrDh+drA=="
+   crossorigin=""/>
 	<!-- Modernizr JS -->
 	<script src="js/modernizr-2.6.2.min.js"></script>
 	<!-- FOR IE9 below -->
@@ -80,11 +84,16 @@
 						<div class="dt js-height">
 							<div class="dtc animate-box">
 								<h2 class="gradient-text">You want to get shanked? Check this map out.</h2>
-								<p><a href="#" class="btn btn-gradient">Hire Us</a></p>
+								<p><a href="#map" class="btn btn-gradient">Hire Us</a></p>
 							</div>	
 						</div>
 					</div>
 				</div>
+			</div>
+		</div>
+
+		<div id="gtco-project">
+			<div class="container" id="map" style="height: 800px;">			SOME TEST
 			</div>
 		</div>
 
@@ -138,6 +147,7 @@
 
 	<!-- Code -->
 	<script src="js/geocoding.js"></script>
+	<script src="js/displayMap.js"></script>
 
 	</body>
 </html>
