@@ -8,7 +8,7 @@ function getLocationFromPostcode(postcode,callback) {
 
 	$.get( url, function( data ) {
 		if(data.status === 200){
-			console.log( data.result );
+			//console.log( data.result );
 			callback(data.result);
 		}
 	});
@@ -18,4 +18,19 @@ function getLocationFromPostcode(postcode,callback) {
 function getLocationFromQuery(query, callback) {
 	var nominatim = new L.Control.Geocoder.Nominatim();
 	nominatim.geocode(query, callback(result));
+}
+
+function getLocationFromPostcodeBulk(postcodes, callback){
+	var url = "https://api.postcodes.io/postcodes/";
+	console.log("hello");
+
+	$.post(url, {
+		"postcodes" : postcodes
+		}, function(data){
+		console.log(data);
+		if(data.status === 200){
+			console.log( data.result );
+			callback(data.result);
+		}
+	});
 }
