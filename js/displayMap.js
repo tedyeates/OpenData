@@ -10,19 +10,47 @@ var map = new L.Map("map", {
 var geocoder = new L.Control.Geocoder();
 	geocoder.addTo(map);
 
-var heat;
-
-function addCrimeToHeat(data) {
-	console.log(data);
-	var heatData = [];
-	//data.forEach(function (d) {
-		
-	//});
 	
-	//heat = L.heatLayer(data, {radius: 12.5}).addTo(map);
+	
+
+var heat;
+// depending on a crime category, return a different intensity from 0 - 1 for the heatmap
+function getHeatIntensityFromCrime(crimeName) {
+	switch (crimeName) {
+		case "bicycle-theft": return 0.15;
+		case "anti-social-behaviour": return 0.05;
+		case "burglary": return 0.35;
+		case "criminal-damage-arson": return 0.75;
+		case "drugs": return 0.45;
+		case "other-theft": return 0.25;
+		case "possession-of-weapons": return 0.85;
+		case "public-order": return 0.25;
+		case "robbery": return 0.4;
+		case "shoplifting": return 0.2;
+		case "theft-from-the-person": return 0.6;
+		case "vehicle-crime": return 0.6;
+		case "violent-crime": return 0.9;
+		case "other-crime": return 0.5;
+		default: return 0;
+	}
+}
+// 
+function addCrimeToHeat(data) {
+	// if heatmap exists, delete it so we dont stack the heatmaps
+	if(heat != null) {
+		heat.remove(map);
+	}
+	// set up an array for it
+	var heatData = [];
+	data.forEach(function (d) {
+		// longitude, latitude, intensity for the array 
+		heatData.push([d.location.latitude, d.location.longitude, getHeatIntensityFromCrime(d.category)]);
+	});
+	// load array into heatLayer and add to the map 
+	heat = L.heatLayer(heatData, {radius: 15, 0.4: 'blue', 0.65: 'lime', 1: 'red', max: 0.5}).addTo(map);
 };
 
-//Get updated crime data 	
+//Get updated crime data whenever the map moves
 map.on('moveend', function() { 
 	var bounds = map.getBounds();
 	var boundsString = bounds.getNorthEast().lat + "," + bounds.getNorthEast().lng + ":" + bounds.getNorthWest().lat + "," + bounds.getNorthWest().lng + ":" + bounds.getSouthWest().lat + "," + bounds.getSouthWest().lng + ":" + bounds.getSouthEast().lat + "," + bounds.getSouthEast().lng;
@@ -33,14 +61,14 @@ map.on('moveend', function() {
 		url: requestString,
 		type: "GET",
 		success: function(result) {
+			//go use the data and add it to the heatmap
 			addCrimeToHeat(result);
 		},
+		// The Police API will 503 when >10k crimes for the area
 		error: function(error) {
 			console.log("Too much data returned.");
 		}
 	});
-	
-
 });
 
 
