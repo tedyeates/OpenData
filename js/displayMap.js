@@ -98,29 +98,45 @@ document.getElementById ("crimeRate").addEventListener ("click", handleCrime, fa
 
 
 function toggleCrime(checkbox) {
-	console.log(checkbox.value);
-	console.log(checkbox.checked);
+	var className = "crime-info";
+	checkbox.checked?addInfoBoxToSideBar(5 + " crimes over the last month" , className) : removeInfoBoxFromSideBar(className);
+
 }
 
 
 function toggleSchools(checkbox) {
-	console.log(checkbox.value);
-	console.log(checkbox.checked);
+	var className = "school-info";
+	checkbox.checked?addInfoBoxToSideBar(5 + " schools around" , className) : removeInfoBoxFromSideBar(className);
+
 }
 
 
 function togglePubs(checkbox) {
-	console.log(checkbox.value);
-	console.log(checkbox.checked);
+	var className = "pub-info";
+	checkbox.checked?addInfoBoxToSideBar(5 + " places to eat around" , className) : removeInfoBoxFromSideBar(className);
+
 }
 
 
 function toggleBusStops(checkbox) {
-	console.log(checkbox.value);
-	console.log(checkbox.checked);
+	var className = "bus-stop-info";
+	checkbox.checked?addInfoBoxToSideBar(5 + " bus stops nearby" , className) : removeInfoBoxFromSideBar(className);
 }
 
 
-function addSubSideBar () {
-	
+function addInfoBoxToSideBar (text, className) {
+
+var infoBox = {
+    class: "info-box " + className,
+    css: {
+      "color": "Green"
+    },
+};
+var $div = $("<div>", infoBox);
+  $div.html(text);
+  $(".info-side-bar").append($div);
+}
+
+function removeInfoBoxFromSideBar (className) {
+	$('.' + className).remove();
 }
