@@ -11,10 +11,19 @@ var geocoder = new L.Control.Geocoder();
 	geocoder.addTo(map);
 
 var showCrimeData = true;
-	
+
+var numberOfCrimesPerArea = 0;	
 	
 
 var heat;
+//function that runs when the page is loaded
+function initialise () {
+	//uncheck crime checkbox
+	updateMap();
+}
+
+
+
 // depending on a crime category, return a different intensity from 0 - 1 for the heatmap
 function getHeatIntensityFromCrime(crimeName) {
 	switch (crimeName) {
@@ -52,11 +61,18 @@ function addCrimeToHeat(data) {
 };
 
 
+function updateMap() {
 
-var updateCrimeDataBasedOnBounds  = function () {
+	var bounds = map.getBounds();
+	var boundsString = bounds.getNorthEast().lat + "," + bounds.getNorthEast().lng + ":" + bounds.getNorthWest().lat + "," + bounds.getNorthWest().lng + ":" + bounds.getSouthWest().lat + "," + bounds.getSouthWest().lng + ":" + bounds.getSouthEast().lat + "," + bounds.getSouthEast().lng;
+
+	//crime
+	updateCrimeDataBasedOnBounds(boundsString);
+	
+
+}
+var updateCrimeDataBasedOnBounds  = function (boundsString) {
 	if(showCrimeData){
-		var bounds = map.getBounds();
-		var boundsString = bounds.getNorthEast().lat + "," + bounds.getNorthEast().lng + ":" + bounds.getNorthWest().lat + "," + bounds.getNorthWest().lng + ":" + bounds.getSouthWest().lat + "," + bounds.getSouthWest().lng + ":" + bounds.getSouthEast().lat + "," + bounds.getSouthEast().lng;
 		var requestString = "https://data.police.uk/api/crimes-street/all-crime?poly=" + boundsString;
 		 //console.log(map.getBounds());
 		
@@ -64,8 +80,11 @@ var updateCrimeDataBasedOnBounds  = function () {
 			url: requestString,
 			type: "GET",
 			success: function(result) {
+				numberOfCrimesPerArea = result.length;
 				//go use the data and add it to the heatmap
 				addCrimeToHeat(result);
+				//update the number of crimes on the info box
+				updateCrimeInfoBox();
 			},
 			// The Police API will 503 when >10k crimes for the area
 			error: function(error) {
@@ -75,7 +94,7 @@ var updateCrimeDataBasedOnBounds  = function () {
 	}
 };
 //Get updated crime data whenever the map moves
-map.on('moveend', updateCrimeDataBasedOnBounds);
+map.on('moveend', updateMap);
 
 // add code for crime rate
 // create the control on the top left
@@ -100,27 +119,30 @@ document.getElementById ("crimeRate").addEventListener ("click", handleCrime, fa
 
 
 
-
 //invoked when the crime check box is selected
-function toggleCrime(checkbox) {
-	var className = "crime-info";
+function updateCrimeInfoBox() {
 
-		//turn on crime stats
-	if(checkbox.checked) {
+	var checked = $('#crime').prop('checked');
+	var className = "crime-info";
+	console.log(checked);
+
+	//turn on crime stats
+	if(checked) {
 		//ennable repainting when map is moved
 		showCrimeData = true;
 		
 		//paint heat map
 		updateCrimeDataBasedOnBounds();
-		
-		addInfoBoxToSideBar(5 + " crimes over the last month" , className);
+		console.log("updating crimes " + numberOfCrimesPerArea);
+		addInfoBoxToSideBar(numberOfCrimesPerArea + " crimes over the last month" , className);
 	}
 
 	//turn off crime stats
 	else {
+
 		//remove heatmap
-		heat.remove(map);
-		
+		if(heat !=null)
+			{heat.remove(map);}
 		showCrimeData = false;
 		removeItemByClassName(className);
 	}
@@ -162,19 +184,27 @@ function toggleBusStops(checkbox) {
 //@text - text to include in the box
 //@className - type of infobox (e.g.'school-info')
 function addInfoBoxToSideBar (text, className) {
+	$('.' + className).remove();
 
-var infoBox = {
-    class: className,
-    css: {
-      "color": "Green"
-    },
-};
-var $div = $("<div>", infoBox);
-  $div.html(text);
-  $(".info-side-bar").append($div);
+	var infoBox = {
+	    class: className,
+	    css: {
+	      "color": "Green"
+	    },
+	};
+	var $div = $("<div>", infoBox);
+	  $div.html(text);
+	  $(".info-side-bar").append($div);
 }
 
 //remove an element from the webpage based on the class name
 function removeItemByClassName (className) {
 	$('.' + className).remove();
 }
+
+
+
+
+
+
+initialise();
