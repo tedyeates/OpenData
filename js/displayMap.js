@@ -96,34 +96,36 @@ document.getElementById ("crimeRate").addEventListener ("click", handleCrime, fa
 
 
 
-
+//invoked when the crime check box is selected
 function toggleCrime(checkbox) {
 	var className = "crime-info";
-	checkbox.checked?addInfoBoxToSideBar(5 + " crimes over the last month" , className) : removeInfoBoxFromSideBar(className);
+	checkbox.checked?addInfoBoxToSideBar(5 + " crimes over the last month" , className) : removeItemByClassName(className);
 
 }
 
-
+//invoked when the school check box is selected
 function toggleSchools(checkbox) {
 	var className = "school-info";
-	checkbox.checked?addInfoBoxToSideBar(5 + " schools around" , className) : removeInfoBoxFromSideBar(className);
+	checkbox.checked?addInfoBoxToSideBar(5 + " schools around" , className) : removeItemByClassName(className);
 
 }
 
-
+//invoked when the pub check box is selected
 function togglePubs(checkbox) {
 	var className = "pub-info";
-	checkbox.checked?addInfoBoxToSideBar(5 + " places to eat around" , className) : removeInfoBoxFromSideBar(className);
+	checkbox.checked?addInfoBoxToSideBar(5 + " places to eat around" , className) : removeItemByClassName(className);
 
 }
 
-
+//invoked when the bus stop check box is selected
 function toggleBusStops(checkbox) {
 	var className = "bus-stop-info";
-	checkbox.checked?addInfoBoxToSideBar(5 + " bus stops nearby" , className) : removeInfoBoxFromSideBar(className);
+	checkbox.checked?addInfoBoxToSideBar(5 + " bus stops nearby" , className) : removeItemByClassName(className);
 }
 
-
+//Add info to the sidebar
+//@text - text to include in the box
+//@className - type of infobox (e.g.'school-info')
 function addInfoBoxToSideBar (text, className) {
 
 var infoBox = {
@@ -137,6 +139,7 @@ var $div = $("<div>", infoBox);
   $(".info-side-bar").append($div);
 }
 
-function removeInfoBoxFromSideBar (className) {
+//remove an element from the webpage based on the class name
+function removeItemByClassName (className) {
 	$('.' + className).remove();
 }
