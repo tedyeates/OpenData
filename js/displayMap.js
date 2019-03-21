@@ -91,3 +91,36 @@ function handleCrime() {
 }
 //add the handler so that the handleCrime function is called on click
 document.getElementById ("crimeRate").addEventListener ("click", handleCrime, false);
+
+
+
+
+
+
+function toggleCrime(checkbox) {
+	console.log(checkbox.value);
+	console.log(checkbox.checked);
+}
+
+
+function toggleSchools(checkbox) {
+	console.log(checkbox.value);
+	console.log(checkbox.checked);
+}
+
+
+function togglePubs(checkbox) {
+	console.log(checkbox.value);
+	console.log(checkbox.checked);
+}
+
+
+function toggleBusStops(checkbox) {
+	console.log(checkbox.value);
+	console.log(checkbox.checked);
+}
+
+
+function addSubSideBar () {
+	
+}
