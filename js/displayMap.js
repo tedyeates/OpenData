@@ -10,6 +10,7 @@ var map = new L.Map("map", {
 var geocoder = new L.Control.Geocoder();
 	geocoder.addTo(map);
 
+var showCrimeData = true;
 	
 	
 
@@ -50,27 +51,31 @@ function addCrimeToHeat(data) {
 	heat = L.heatLayer(heatData, {radius: 15, 0.4: 'blue', 0.65: 'lime', 1: 'red', max: 0.5}).addTo(map);
 };
 
-//Get updated crime data whenever the map moves
-map.on('moveend', function() { 
-	var bounds = map.getBounds();
-	var boundsString = bounds.getNorthEast().lat + "," + bounds.getNorthEast().lng + ":" + bounds.getNorthWest().lat + "," + bounds.getNorthWest().lng + ":" + bounds.getSouthWest().lat + "," + bounds.getSouthWest().lng + ":" + bounds.getSouthEast().lat + "," + bounds.getSouthEast().lng;
-	var requestString = "https://data.police.uk/api/crimes-street/all-crime?poly=" + boundsString;
-	 //console.log(map.getBounds());
-	
-	$.ajax({
-		url: requestString,
-		type: "GET",
-		success: function(result) {
-			//go use the data and add it to the heatmap
-			addCrimeToHeat(result);
-		},
-		// The Police API will 503 when >10k crimes for the area
-		error: function(error) {
-			console.log("Too much data returned.");
-		}
-	});
-});
 
+
+var updateCrimeDataBasedOnBounds  = function () {
+	if(showCrimeData){
+		var bounds = map.getBounds();
+		var boundsString = bounds.getNorthEast().lat + "," + bounds.getNorthEast().lng + ":" + bounds.getNorthWest().lat + "," + bounds.getNorthWest().lng + ":" + bounds.getSouthWest().lat + "," + bounds.getSouthWest().lng + ":" + bounds.getSouthEast().lat + "," + bounds.getSouthEast().lng;
+		var requestString = "https://data.police.uk/api/crimes-street/all-crime?poly=" + boundsString;
+		 //console.log(map.getBounds());
+		
+		$.ajax({
+			url: requestString,
+			type: "GET",
+			success: function(result) {
+				//go use the data and add it to the heatmap
+				addCrimeToHeat(result);
+			},
+			// The Police API will 503 when >10k crimes for the area
+			error: function(error) {
+				console.log("Too much data returned.");
+			}
+		});
+	}
+};
+//Get updated crime data whenever the map moves
+map.on('moveend', updateCrimeDataBasedOnBounds);
 
 // add code for crime rate
 // create the control on the top left
@@ -99,12 +104,36 @@ document.getElementById ("crimeRate").addEventListener ("click", handleCrime, fa
 //invoked when the crime check box is selected
 function toggleCrime(checkbox) {
 	var className = "crime-info";
-	checkbox.checked?addInfoBoxToSideBar(5 + " crimes over the last month" , className) : removeItemByClassName(className);
+
+		//turn on crime stats
+	if(checkbox.checked) {
+		//ennable repainting when map is moved
+		showCrimeData = true;
+		
+		//paint heat map
+		updateCrimeDataBasedOnBounds();
+		
+		addInfoBoxToSideBar(5 + " crimes over the last month" , className);
+	}
+
+	//turn off crime stats
+	else {
+		//remove heatmap
+		heat.remove(map);
+		
+		showCrimeData = false;
+		removeItemByClassName(className);
+	}
+	
 
 }
 
 //invoked when the school check box is selected
 function toggleSchools(checkbox) {
+
+	//remove schools
+
+
 	var className = "school-info";
 	checkbox.checked?addInfoBoxToSideBar(5 + " schools around" , className) : removeItemByClassName(className);
 
@@ -112,6 +141,9 @@ function toggleSchools(checkbox) {
 
 //invoked when the pub check box is selected
 function togglePubs(checkbox) {
+
+	//remove pubs
+
 	var className = "pub-info";
 	checkbox.checked?addInfoBoxToSideBar(5 + " places to eat around" , className) : removeItemByClassName(className);
 
@@ -119,6 +151,9 @@ function togglePubs(checkbox) {
 
 //invoked when the bus stop check box is selected
 function toggleBusStops(checkbox) {
+	
+	//remove bus stops
+
 	var className = "bus-stop-info";
 	checkbox.checked?addInfoBoxToSideBar(5 + " bus stops nearby" , className) : removeItemByClassName(className);
 }
@@ -129,7 +164,7 @@ function toggleBusStops(checkbox) {
 function addInfoBoxToSideBar (text, className) {
 
 var infoBox = {
-    class: "info-box " + className,
+    class: className,
     css: {
       "color": "Green"
     },
