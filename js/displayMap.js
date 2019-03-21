@@ -88,7 +88,7 @@ var updateCrimeDataBasedOnBounds  = function (boundsString) {
 			},
 			// The Police API will 503 when >10k crimes for the area
 			error: function(error) {
-				console.log("Too much data returned.");
+				console.log("GET request Error. Too much data returned.");
 			}
 		});
 	}
@@ -124,7 +124,6 @@ function updateCrimeInfoBox() {
 
 	var checked = $('#crime').prop('checked');
 	var className = "crime-info";
-	console.log(checked);
 
 	//turn on crime stats
 	if(checked) {
@@ -133,7 +132,6 @@ function updateCrimeInfoBox() {
 		
 		//paint heat map
 		updateCrimeDataBasedOnBounds();
-		console.log("updating crimes " + numberOfCrimesPerArea);
 		addInfoBoxToSideBar(numberOfCrimesPerArea + " crimes over the last month" , className);
 	}
 
