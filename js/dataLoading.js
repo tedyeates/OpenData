@@ -1,6 +1,8 @@
 let pubs = [];
 let schools = [];
 let transport = [];
+let results = [];
+let postLatLong = {};
 
 Promise.all([
     d3.csv("data/open_pubs.csv", function(d){
@@ -35,16 +37,20 @@ Promise.all([
     // let postcodes = schools.map(school => {
     //   return school.originalData.POSTCODE;
     // });
-
     // console.log(postcodes);
     // postcodes = ["OX49 5NU", "M32 0JG", "NE30 1DP"];
     // getLocationFromPostcodeBulk(postcodes, function(d){
-    //   return d;
+    //   results = d;
     // });
+    
+    // setTimeout(function(){
+    //   console.log(results);
+    //   console.log(pubs);
+    //   console.log(schools);
+    //   console.log(transport);
 
-    console.log(pubs);
-    console.log(schools);
-    console.log(transport);
+    //   //postcodeToLatLong("OX49 5NU");
+    // }, 2000);
   });
 
 /*
@@ -58,6 +64,15 @@ function getPubs(){
   return pubs;
 }
 
+// function postcodeToLatLong(postcode){
+//   //if(jQuery.isEmptyObject(postLatLong)){
+//     results.forEach(element => {
+//       postLatLong.push({"postcode": element.query, "lat": element.result.latitude, "lon": element.result.longitude});
+//     });
+//   //}
+
+//   console.log(postLatLong[0].postcode);
+// }
 /*
   returns dictionary of school data:
   name: name, 
