@@ -7,7 +7,7 @@ var transport = [];
 Promise.all([
     d3.csv("data/open_pubs.csv", function(d){
 
-      if(d.LAT !==null && d.LNG !== null && d.LAT !== "" && d.LNG !== "" && d.LNG!=="#N/A" && d.LAT!=="#N/A") 
+      if(d.latitude !==null && d.longitude !== null && d.latitude !== "" && d.longitude !== "" && d.longitude!=="#N/A" && d.latitude!=="#N/A") 
       return {
         name: d.name,
         lat: d.latitude,
