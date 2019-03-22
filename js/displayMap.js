@@ -85,6 +85,8 @@ function getHeatIntensityFromCrime(crimeName) {
 }
 // create heatmap based on crime and add it to the map
 function addCrimeToHeat(data) {
+	var className = "crime-info";
+	
 	// if heatmap exists, delete it so we dont stack the heatmaps
 	if(heat != null) {
 		heat.remove(map);
@@ -97,6 +99,8 @@ function addCrimeToHeat(data) {
 	});
 	// load array into heatLayer and add to the map 
 	heat = L.heatLayer(heatData, {radius: 15, 0.4: 'blue', 0.65: 'lime', 1: 'red', max: 0.5}).addTo(map);
+	removeItemByClassName(className);
+	addInfoBoxToSideBar(numberOfCrimesPerArea + " crimes over the last month" , className);
 };
 
 
@@ -122,8 +126,12 @@ function updateMap() {
 
 //send a request for data and update the crime heat map
 var updateCrimeDataBasedOnBounds  = function () {
+	var className = "crime-info";
+	
 	if(showCrimeData){
-		var requestString = "https://data.police.uk/api/crimes-street/all-crime?poly=" + boundsString;
+		var requestString = "https://data.police.uk/api/crimes-street/all-crime?poly=" + boundsString;		
+		removeItemByClassName(className);
+		addInfoBoxToSideBar("Loading crimes..." , className);
 		 //console.log(map.getBounds());
 		 $.ajax({
 		 	url: requestString,
@@ -132,14 +140,19 @@ var updateCrimeDataBasedOnBounds  = function () {
 		 		numberOfCrimesPerArea = result.length;
 				//update the number of crimes on the info box
 				updateCrimeInfoBox();
-				if(showCrimeData)
-				//go use the data and add it to the heatmap
-			addCrimeToHeat(result);
+				if(showCrimeData) {
+					
+					//go use the data and add it to the heatmap
+					addCrimeToHeat(result);
+				}
+				
 
 		},
 			// The Police API will 503 when >10k crimes for the area
 			error: function(error) {
 				console.log("GET request Error. Too much data returned.");
+				removeItemByClassName(className);
+				addInfoBoxToSideBar("Over 10,000 crimes over the last month" , className);
 			}
 		});
 		}
@@ -161,12 +174,13 @@ function updateCrimeInfoBox() {
 
 	//turn on crime stats
 	if(checked) {
-		//ennable repainting when map is moved
+		//enable repainting when map is moved
 		showCrimeData = true;
 		
 		//paint heat map
 		updateCrimeDataBasedOnBounds();
-		addInfoBoxToSideBar(numberOfCrimesPerArea + " crimes over the last month" , className);
+		
+		
 	}
 
 	//turn off crime stats
