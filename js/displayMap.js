@@ -231,7 +231,9 @@ function updateBusStopLayer() {
 		var coords = L.latLng(lat, long);
 
 		if(lat!==null && long !==null && bounds.contains(coords)){
-			markers.push(L.marker([lat, long]));
+			let marker =  L.marker([lat, long], {title:transport[i].name});
+			markers.push(marker);
+			marker.bindPopup(transport[i].name).openPopup();
 			numberOfBusStopsInArea++;
 		}
 	} 
@@ -283,7 +285,9 @@ function updateSchoolLayer() {
 		var coords = L.latLng(lat, long);
 
 		if(bounds.contains(coords)){       
-			markers.push(L.marker([lat, long]));
+			let marker =  L.marker([lat, long], {title:schools[i].name});
+			markers.push(marker);
+			marker.bindPopup(schools[i].name).openPopup();
 			numberOfSchoolsInArea++;
 		}
 
