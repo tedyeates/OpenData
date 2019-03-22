@@ -17,6 +17,10 @@
 }
 
 
+.info-box{
+    margin-top:5px;
+    padding:5px;
+}
 .crime-info{
     color: #2a2727e6;
     background-color: #E77D67;
