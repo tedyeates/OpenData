@@ -5,7 +5,37 @@ var map = new L.Map("map", {
 })
 .addLayer(new L.TileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"));
 
+//Define icons
+//http://www.iconarchive.com/
+var busIcon = L.icon({
+    iconUrl: 'images/bus-icon.png',
 
+    iconSize:     [40, 40], // size of the icon
+    shadowSize:   [50, 64], // size of the shadow
+    iconAnchor:   [22, 94], // point of the icon which will correspond to marker's location
+    shadowAnchor: [4, 62],  // the same for the shadow
+    popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
+});
+
+var drinkIcon = L.icon({
+    iconUrl: 'images/drink-icon.png',
+
+    iconSize:     [40, 40], // size of the icon
+    shadowSize:   [50, 64], // size of the shadow
+    iconAnchor:   [22, 94], // point of the icon which will correspond to marker's location
+    shadowAnchor: [4, 62],  // the same for the shadow
+    popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
+});
+
+var bookIcon = L.icon({
+    iconUrl: 'images/books-icon.png',
+
+    iconSize:     [40, 40], // size of the icon
+    shadowSize:   [50, 64], // size of the shadow
+    iconAnchor:   [22, 94], // point of the icon which will correspond to marker's location
+    shadowAnchor: [4, 62],  // the same for the shadow
+    popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
+});
 
 //set up geocoder
 var geocoder = new L.Control.Geocoder();
@@ -231,7 +261,9 @@ function updateBusStopLayer() {
 		var coords = L.latLng(lat, long);
 
 		if(lat!==null && long !==null && bounds.contains(coords)){
-			let marker =  L.marker([lat, long], {title:transport[i].name});
+			let marker =  L.marker([lat, long], {
+					title:transport[i].name,
+					icon:busIcon});
 			markers.push(marker);
 			marker.bindPopup(transport[i].name).openPopup();
 			numberOfBusStopsInArea++;
@@ -285,7 +317,9 @@ function updateSchoolLayer() {
 		var coords = L.latLng(lat, long);
 
 		if(bounds.contains(coords)){       
-			let marker =  L.marker([lat, long], {title:schools[i].name});
+			let marker =  L.marker([lat, long], {
+				title:schools[i].name,
+				icon:bookIcon});
 			markers.push(marker);
 			marker.bindPopup(schools[i].name).openPopup();
 			numberOfSchoolsInArea++;
@@ -342,7 +376,9 @@ function updatePubLayer() {
 		var coords = L.latLng(lat, long);
 
 		if(bounds.contains(coords)){      
-			let marker =  L.marker([lat, long], {title:pubs[i].name});
+			let marker =  L.marker([lat, long], {
+				title:pubs[i].name,
+				icon:drinkIcon});
 			markers.push(marker);
 			marker.bindPopup(pubs[i].name).openPopup();
 			numberOfPubsinArea++;
