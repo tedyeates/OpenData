@@ -6,16 +6,25 @@ var map = new L.Map("map", {
 .addLayer(new L.TileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"));
 
 
+
 //set up geocoder
 var geocoder = new L.Control.Geocoder();
-	geocoder.addTo(map);
+geocoder.addTo(map);
 
 var showCrimeData = true;
 
 var numberOfCrimesPerArea = 0;	
-	
+var numberOfBusStopsInArea = 0;
+var numberOfSchoolsInArea = 0;
+var numberOfPubsinArea = 0;
 
-var heat;
+var busStopLayer = null;
+var schoolLayer = null;
+var pubLayer = null;
+var heat=null;
+var bounds,boundsString;
+
+var markerLimitPerLayer = 100;
 //function that runs on load
 function initialise () {
 	//uncheck crime checkbox
@@ -64,47 +73,47 @@ function addCrimeToHeat(data) {
 //When region on map changes, this function is called. 
 function updateMap() {
 
-	var bounds = map.getBounds();
-	var boundsString = bounds.getNorthEast().lat + "," + bounds.getNorthEast().lng + ":" + bounds.getNorthWest().lat + "," + bounds.getNorthWest().lng + ":" + bounds.getSouthWest().lat + "," + bounds.getSouthWest().lng + ":" + bounds.getSouthEast().lat + "," + bounds.getSouthEast().lng;
-
+	bounds = map.getBounds();
+	boundsString = bounds.getNorthEast().lat + "," + bounds.getNorthEast().lng + ":" + bounds.getNorthWest().lat + "," + bounds.getNorthWest().lng + ":" + bounds.getSouthWest().lat + "," + bounds.getSouthWest().lng + ":" + bounds.getSouthEast().lat + "," + bounds.getSouthEast().lng;
 	//crime
-	updateCrimeDataBasedOnBounds(boundsString);
+	updateCrimeInfoBox();
 
 	//schools
+	updateSchoolInfoBox();
 
 
 	//bus stops
-
+	updateBusStopInfoBox();
 
 	//pubs
-	
+	updatePubInfoBox();
 
 }
 
 //send a request for data and update the crime heat map
-var updateCrimeDataBasedOnBounds  = function (boundsString) {
+var updateCrimeDataBasedOnBounds  = function () {
 	if(showCrimeData){
 		var requestString = "https://data.police.uk/api/crimes-street/all-crime?poly=" + boundsString;
 		 //console.log(map.getBounds());
-		
-		$.ajax({
-			url: requestString,
-			type: "GET",
-			success: function(result) {
-				numberOfCrimesPerArea = result.length;
+		 $.ajax({
+		 	url: requestString,
+		 	type: "GET",
+		 	success: function(result) {
+		 		numberOfCrimesPerArea = result.length;
 				//update the number of crimes on the info box
 				updateCrimeInfoBox();
+				if(showCrimeData)
 				//go use the data and add it to the heatmap
-				addCrimeToHeat(result);
-				
-			},
+			addCrimeToHeat(result);
+
+		},
 			// The Police API will 503 when >10k crimes for the area
 			error: function(error) {
 				console.log("GET request Error. Too much data returned.");
 			}
 		});
-	}
-};
+		}
+	};
 //Get updated crime data whenever the map moves
 map.on('moveend', updateMap);
 
@@ -113,17 +122,17 @@ map.on('moveend', updateMap);
 var crimeTick = L.control({position: 'topleft'});
 // what to do when it's added to the map 
 crimeTick.onAdd = function (map) {
-    var div = L.DomUtil.create('div', 'crimeRate');
+	var div = L.DomUtil.create('div', 'crimeRate');
 	//html for the control, in this case checkbox
-    div.innerHTML = '<form><input id="crimeRate" type="checkbox"/>Crime Rate Display</form>'; 
-    return div;
+	div.innerHTML = '<form><input id="crimeRate" type="checkbox"/>Crime Rate Display</form>'; 
+	return div;
 };
 // actually add it
 crimeTick.addTo(map);
 // function that will be called when the checkbox is ticked
 function handleCrime() {
 	
-   alert("Clicked, checked = " + this.checked);
+	alert("Clicked, checked = " + this.checked);
 }
 //add the handler so that the handleCrime function is called on click
 document.getElementById ("crimeRate").addEventListener ("click", handleCrime, false);
@@ -136,6 +145,11 @@ function updateCrimeInfoBox() {
 
 	var checked = $('#crime').prop('checked');
 	var className = "crime-info";
+
+	//remove the old layer - this helps in not painting another layer on top of the old one, if the map zooms without the checkbox controls
+	if(heat !=null)
+		{heat.remove(map);}
+
 
 	//turn on crime stats
 	if(checked) {
@@ -151,8 +165,6 @@ function updateCrimeInfoBox() {
 	else {
 
 		//remove heatmap
-		if(heat !=null)
-			{heat.remove(map);}
 		showCrimeData = false;
 		removeItemByClassName(className);
 	}
@@ -181,14 +193,6 @@ function togglePubs(checkbox) {
 
 }
 
-//invoked when the bus stop check box is selected
-function toggleBusStops(checkbox) {
-	
-	//remove bus stops
-
-	var className = "bus-stop-info";
-	checkbox.checked?addInfoBoxToSideBar(5 + " bus stops nearby" , className) : removeItemByClassName(className);
-}
 
 //Add info to the sidebar
 //@text - text to include in the box
@@ -197,11 +201,11 @@ function addInfoBoxToSideBar (text, className) {
 	$('.' + className).remove();
 
 	var infoBox = {
-	    class: className + " info-box" 
+		class: className + " info-box" 
 	};
 	var $div = $("<div>", infoBox);
-	  $div.html(text);
-	  $(".info-side-bar").append($div);
+	$div.html(text);
+	$(".info-side-bar").append($div);
 }
 
 //remove an element from the webpage based on the class name
@@ -210,8 +214,169 @@ function removeItemByClassName (className) {
 }
 
 
+function updateBusStopLayer() {
+	
+	
+	//reset the number of bus stops
+	numberOfBusStopsInArea = 0;
+	var markers = [];
+
+	console.log("searching for bus stops");
+	//loop through all bus stops
+	for(var i=0; i<transport.length; i++) {
+		if(numberOfBusStopsInArea > markerLimitPerLayer)
+			break;
+		var lat = transport[i].lat;
+		var long = transport[i].lon;
+		var coords = L.latLng(lat, long);
+
+		if(lat!==null && long !==null && bounds.contains(coords)){
+			let marker =  L.marker([lat, long], {title:transport[i].name});
+			markers.push(marker);
+			marker.bindPopup(transport[i].name).openPopup();
+			numberOfBusStopsInArea++;
+		}
+	} 
+
+	//add the bus stop layer
+	busStopLayer = L.featureGroup(markers).addTo(map);
+}
+
+function updateBusStopInfoBox () {
+	var checked = $('#bus-stops').prop('checked');
+	var className = "bus-stop-info";
+	
+	//remove the old layer
+	if(busStopLayer !== null){
+		map.removeLayer(busStopLayer);
+	}
+
+	//turn on bus stop layer
+	if(checked) {
+
+		updateBusStopLayer();
+		addInfoBoxToSideBar(numberOfBusStopsInArea + " bus stops in the area" , className);
+
+	}
+
+	//turn off bus stop layer
+	else {		
+		//remove info box
+		removeItemByClassName(className);
+	}
+}
+
+function updateSchoolLayer() {
+	
+	
+	//reset the number of bus stops
+	numberOfSchoolsInArea = 0;
+	var markers = [];
+
+	console.log("searching for schools");
+	console.log(schools);
+	//loop through all bus stops
+	for(var i=0; i<schools.length; i++) {
+		if(numberOfSchoolsInArea > markerLimitPerLayer)
+			break;
+		var lat = schools[i].lat;
+		var long = schools[i].lon;
+
+		var coords = L.latLng(lat, long);
+
+		if(bounds.contains(coords)){       
+			let marker =  L.marker([lat, long], {title:schools[i].name});
+			markers.push(marker);
+			marker.bindPopup(schools[i].name).openPopup();
+			numberOfSchoolsInArea++;
+		}
+
+		
+	} 
+
+	//add the bus stop layer
+	schoolLayer = L.featureGroup(markers).addTo(map);
+}
+
+function updateSchoolInfoBox () {
+	var checked = $('#schools').prop('checked');
+	var className = "school-info";
+	
+	//remove the old layer
+	if(schoolLayer !== null){
+		map.removeLayer(schoolLayer);
+	}
+
+	//turn on bus stop layer
+	if(checked) {
+
+		updateSchoolLayer();
+		addInfoBoxToSideBar(numberOfSchoolsInArea + " schools in the area" , className);
+
+	}
+
+	//turn off bus stop layer
+	else {		
+		//remove info box
+		removeItemByClassName(className);
+	}
+}
 
 
 
+
+function updatePubLayer() {
+	
+	
+	//reset the number of bus stops
+	numberOfPubsinArea = 0;
+	var markers = [];
+
+	console.log("searching for pubs");
+	//loop through all bus stops
+	for(var i=0; i<pubs.length; i++) {
+		if(numberOfPubsinArea > markerLimitPerLayer)
+			break;
+		var lat = pubs[i].lat;
+		var long = pubs[i].lon;
+		var coords = L.latLng(lat, long);
+
+		if(bounds.contains(coords)){      
+			let marker =  L.marker([lat, long], {title:pubs[i].name});
+			markers.push(marker);
+			marker.bindPopup(pubs[i].name).openPopup();
+			numberOfPubsinArea++;
+		}
+
+		
+	} 
+
+	//add the bus stop layer
+	pubLayer = L.featureGroup(markers).addTo(map);
+}
+
+function updatePubInfoBox () {
+	var checked = $('#pubs').prop('checked');
+	var className = "pub-info";
+	
+	//remove the old layer
+	if(pubLayer !== null){
+		map.removeLayer(pubLayer);
+	}
+
+	//turn on bus stop layer
+	if(checked) {
+
+		updatePubLayer();
+		addInfoBoxToSideBar(numberOfPubsinArea + " pubs in the area" , className);
+
+	}
+
+	//turn off bus stop layer
+	else {		
+		//remove info box
+		removeItemByClassName(className);
+	}
+}
 
 initialise();
