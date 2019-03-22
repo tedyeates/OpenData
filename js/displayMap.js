@@ -337,8 +337,10 @@ function updatePubLayer() {
 		var long = pubs[i].lon;
 		var coords = L.latLng(lat, long);
 
-		if(bounds.contains(coords)){       
-			markers.push(L.marker([lat, long]));
+		if(bounds.contains(coords)){      
+			let marker =  L.marker([lat, long], {title:pubs[i].name});
+			markers.push(marker);
+			marker.bindPopup(pubs[i].name).openPopup();
 			numberOfPubsinArea++;
 		}
 
