@@ -9,16 +9,22 @@ var map = new L.Map("map", {
 
 //set up geocoder
 var geocoder = new L.Control.Geocoder();
-	geocoder.addTo(map);
+geocoder.addTo(map);
 
 var showCrimeData = true;
 
 var numberOfCrimesPerArea = 0;	
 var numberOfBusStopsInArea = 0;
-	
+var numberOfSchoolsInArea = 0;
+var numberOfPubsinArea = 0;
+
 var busStopLayer = null;
+var schoolLayer = null;
+var pubLayer = null;
 var heat=null;
 var bounds,boundsString;
+
+var markerLimitPerLayer = 100;
 //function that runs on load
 function initialise () {
 	//uncheck crime checkbox
@@ -73,6 +79,8 @@ function updateMap() {
 	updateCrimeInfoBox();
 
 	//schools
+	updateSchoolInfoBox();
+
 
 	//bus stops
 	updateBusStopInfoBox();
@@ -87,25 +95,25 @@ var updateCrimeDataBasedOnBounds  = function () {
 	if(showCrimeData){
 		var requestString = "https://data.police.uk/api/crimes-street/all-crime?poly=" + boundsString;
 		 //console.log(map.getBounds());
-		$.ajax({
-			url: requestString,
-			type: "GET",
-			success: function(result) {
-				numberOfCrimesPerArea = result.length;
+		 $.ajax({
+		 	url: requestString,
+		 	type: "GET",
+		 	success: function(result) {
+		 		numberOfCrimesPerArea = result.length;
 				//update the number of crimes on the info box
 				updateCrimeInfoBox();
 				if(showCrimeData)
 				//go use the data and add it to the heatmap
-				addCrimeToHeat(result);
-				
-			},
+			addCrimeToHeat(result);
+
+		},
 			// The Police API will 503 when >10k crimes for the area
 			error: function(error) {
 				console.log("GET request Error. Too much data returned.");
 			}
 		});
-	}
-};
+		}
+	};
 //Get updated crime data whenever the map moves
 map.on('moveend', updateMap);
 
@@ -114,17 +122,17 @@ map.on('moveend', updateMap);
 var crimeTick = L.control({position: 'topleft'});
 // what to do when it's added to the map 
 crimeTick.onAdd = function (map) {
-    var div = L.DomUtil.create('div', 'crimeRate');
+	var div = L.DomUtil.create('div', 'crimeRate');
 	//html for the control, in this case checkbox
-    div.innerHTML = '<form><input id="crimeRate" type="checkbox"/>Crime Rate Display</form>'; 
-    return div;
+	div.innerHTML = '<form><input id="crimeRate" type="checkbox"/>Crime Rate Display</form>'; 
+	return div;
 };
 // actually add it
 crimeTick.addTo(map);
 // function that will be called when the checkbox is ticked
 function handleCrime() {
 	
-   alert("Clicked, checked = " + this.checked);
+	alert("Clicked, checked = " + this.checked);
 }
 //add the handler so that the handleCrime function is called on click
 document.getElementById ("crimeRate").addEventListener ("click", handleCrime, false);
@@ -140,7 +148,7 @@ function updateCrimeInfoBox() {
 
 	//remove the old layer - this helps in not painting another layer on top of the old one, if the map zooms without the checkbox controls
 	if(heat !=null)
-			{heat.remove(map);}
+		{heat.remove(map);}
 
 
 	//turn on crime stats
@@ -193,11 +201,11 @@ function addInfoBoxToSideBar (text, className) {
 	$('.' + className).remove();
 
 	var infoBox = {
-	    class: className + " info-box" 
+		class: className + " info-box" 
 	};
 	var $div = $("<div>", infoBox);
-	  $div.html(text);
-	  $(".info-side-bar").append($div);
+	$div.html(text);
+	$(".info-side-bar").append($div);
 }
 
 //remove an element from the webpage based on the class name
@@ -216,6 +224,8 @@ function updateBusStopLayer() {
 	console.log("searching for bus stops");
 	//loop through all bus stops
 	for(var i=0; i<transport.length; i++) {
+		if(numberOfBusStopsInArea > markerLimitPerLayer)
+			break;
 		var lat = transport[i].lat;
 		var long = transport[i].lon;
 		var coords = L.latLng(lat, long);
@@ -253,6 +263,62 @@ function updateBusStopInfoBox () {
 		removeItemByClassName(className);
 	}
 }
+
+function updateSchoolLayer() {
+	
+	
+	//reset the number of bus stops
+	numberOfSchoolsInArea = 0;
+	var markers = [];
+
+	console.log("searching for schools");
+	console.log(schools);
+	//loop through all bus stops
+	for(var i=0; i<schools.length; i++) {
+		if(numberOfSchoolsInArea > markerLimitPerLayer)
+			break;
+		var lat = schools[i].lat;
+		var long = schools[i].lon;
+
+			var coords = L.latLng(lat, long);
+
+			if(bounds.contains(coords)){       
+				markers.push(L.marker([lat, long]));
+				numberOfSchoolsInArea++;
+}
+
+		
+	} 
+
+	//add the bus stop layer
+	schoolLayer = L.featureGroup(markers).addTo(map);
+}
+
+function updateSchoolInfoBox () {
+	var checked = $('#schools').prop('checked');
+	var className = "school-info";
+	
+	//remove the old layer
+	if(schoolLayer !== null){
+		map.removeLayer(schoolLayer);
+	}
+
+	//turn on bus stop layer
+	if(checked) {
+
+		updateSchoolLayer();
+		addInfoBoxToSideBar(numberOfSchoolsInArea + " schools in the area" , className);
+
+	}
+
+	//turn off bus stop layer
+	else {		
+		//remove info box
+		removeItemByClassName(className);
+	}
+}
+
+
 
 
 initialise();
