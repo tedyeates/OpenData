@@ -65,9 +65,11 @@ var pubLayer = null;
 var heat=null;
 var bounds,boundsString;
 
-var markerLimitPerLayer = 100;
+var markerLimitPerLayer = 200;
+var minZoomLevel=12;
 //function that runs on load
 function initialise () {
+	addInfoBoxToSideBar("Zoom in more or search in the top-right corner to view points of interest.", 'zoom-info');
 	//uncheck crime checkbox
 	updateMap();
 }
@@ -118,21 +120,51 @@ function addCrimeToHeat(data) {
 //When region on map changes, this function is called. 
 function updateMap() {
 
-	bounds = map.getBounds();
-	boundsString = bounds.getNorthEast().lat + "," + bounds.getNorthEast().lng + ":" + bounds.getNorthWest().lat + "," + bounds.getNorthWest().lng + ":" + bounds.getSouthWest().lat + "," + bounds.getSouthWest().lng + ":" + bounds.getSouthEast().lat + "," + bounds.getSouthEast().lng;
-	//crime
-	updateCrimeInfoBox();
 
-	//schools
-	updateSchoolInfoBox();
+	var zoom = map.getZoom();
+	console.log(zoom);
+
+	if(zoom >minZoomLevel) {
+		//remove the info box about zoom
+		removeItemByClassName('zoom-info');
+
+		bounds = map.getBounds();
+		boundsString = bounds.getNorthEast().lat + "," + bounds.getNorthEast().lng + ":" + bounds.getNorthWest().lat + "," + bounds.getNorthWest().lng + ":" + bounds.getSouthWest().lat + "," + bounds.getSouthWest().lng + ":" + bounds.getSouthEast().lat + "," + bounds.getSouthEast().lng;
+		//crime
+		updateCrimeInfoBox();
+
+		//schools
+		updateSchoolInfoBox();
 
 
-	//bus stops
-	updateBusStopInfoBox();
+		//bus stops
+		updateBusStopInfoBox();
 
-	//pubs
-	updatePubInfoBox();
+		//pubs
+		updatePubInfoBox();
+	}else{
+		//add info box about zoom
+		addInfoBoxToSideBar("Zoom in more or search in the top-right corner to view points of interest.", 'zoom-info');
 
+		//remove all info boxes
+		removeItemByClassName('crime-info');
+		removeItemByClassName('bus-stop-info');
+		removeItemByClassName('pub-info');
+		removeItemByClassName('school-info');
+
+		//remove all layers
+		if(busStopLayer!==null)
+			map.removeLayer(busStopLayer);
+		if(schoolLayer!==null)
+			map.removeLayer(schoolLayer);
+		if(pubLayer!==null)
+			map.removeLayer(pubLayer);
+		
+		showCrimeData =false;
+		if(heat !=null)
+			{heat.remove(map);}
+
+	}
 }
 
 //send a request for data and update the crime heat map
@@ -150,7 +182,7 @@ var updateCrimeDataBasedOnBounds  = function () {
 		 	success: function(result) {
 		 		numberOfCrimesPerArea = result.length;
 				//update the number of crimes on the info box
-				updateCrimeInfoBox();
+				//updateCrimeInfoBox();  <---commented this out but it might break something
 				if(showCrimeData) {
 					
 					//go use the data and add it to the heatmap
@@ -184,7 +216,8 @@ function updateCrimeInfoBox() {
 
 
 	//turn on crime stats
-	if(checked) {
+	if(checked && map.getZoom()>minZoomLevel) {
+		
 		//enable repainting when map is moved
 		showCrimeData = true;
 		
@@ -233,7 +266,7 @@ function updateBusStopLayer() {
 	numberOfBusStopsInArea = 0;
 	var markers = [];
 
-	console.log("searching for bus stops");
+	console.log("searching for transport stops");
 	//loop through all bus stops
 	for(var i=0; i<transport.length; i++) {
 		if(numberOfBusStopsInArea > markerLimitPerLayer)
@@ -288,7 +321,6 @@ function updateSchoolLayer() {
 	var markers = [];
 
 	console.log("searching for schools");
-	console.log(schools);
 	//loop through all bus stops
 	for(var i=0; i<schools.length; i++) {
 		if(numberOfSchoolsInArea > markerLimitPerLayer)
