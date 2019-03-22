@@ -6,6 +6,8 @@ var transport = [];
 
 Promise.all([
     d3.csv("data/open_pubs.csv", function(d){
+
+      if(d.LAT !==null && d.LNG !== null && d.LAT !== "" && d.LNG !== "" && d.LNG!=="#N/A" && d.LAT!=="#N/A") 
       return {
         name: d.name,
         lat: d.latitude,
@@ -23,7 +25,7 @@ Promise.all([
           originalData: d
         }
     }),
-    d3.tsv("data/transport_stops.tsv", function(d){
+    d3.csv("data/transport_stops.csv", function(d){
       return {
         name: d.stop_name,
         lat: d.stop_lat,
@@ -36,7 +38,6 @@ Promise.all([
     pubs = files[0];
     schools = files[1];
     transport = files[2];
-
     // let postcodes = schools.map(school => {
     //   return school.originalData.POSTCODE;
     // });
