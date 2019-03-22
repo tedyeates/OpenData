@@ -86,7 +86,7 @@ function updateMap() {
 	updateBusStopInfoBox();
 
 	//pubs
-	
+	updatePubInfoBox();
 
 }
 
@@ -280,12 +280,12 @@ function updateSchoolLayer() {
 		var lat = schools[i].lat;
 		var long = schools[i].lon;
 
-			var coords = L.latLng(lat, long);
+		var coords = L.latLng(lat, long);
 
-			if(bounds.contains(coords)){       
-				markers.push(L.marker([lat, long]));
-				numberOfSchoolsInArea++;
-}
+		if(bounds.contains(coords)){       
+			markers.push(L.marker([lat, long]));
+			numberOfSchoolsInArea++;
+		}
 
 		
 	} 
@@ -320,5 +320,57 @@ function updateSchoolInfoBox () {
 
 
 
+
+function updatePubLayer() {
+	
+	
+	//reset the number of bus stops
+	numberOfPubsinArea = 0;
+	var markers = [];
+
+	console.log("searching for pubs");
+	//loop through all bus stops
+	for(var i=0; i<pubs.length; i++) {
+		if(numberOfPubsinArea > markerLimitPerLayer)
+			break;
+		var lat = pubs[i].lat;
+		var long = pubs[i].lon;
+		var coords = L.latLng(lat, long);
+
+		if(bounds.contains(coords)){       
+			markers.push(L.marker([lat, long]));
+			numberOfPubsinArea++;
+		}
+
+		
+	} 
+
+	//add the bus stop layer
+	pubLayer = L.featureGroup(markers).addTo(map);
+}
+
+function updatePubInfoBox () {
+	var checked = $('#pubs').prop('checked');
+	var className = "pub-info";
+	
+	//remove the old layer
+	if(pubLayer !== null){
+		map.removeLayer(pubLayer);
+	}
+
+	//turn on bus stop layer
+	if(checked) {
+
+		updatePubLayer();
+		addInfoBoxToSideBar(numberOfPubsinArea + " pubs in the area" , className);
+
+	}
+
+	//turn off bus stop layer
+	else {		
+		//remove info box
+		removeItemByClassName(className);
+	}
+}
 
 initialise();
