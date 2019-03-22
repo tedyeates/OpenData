@@ -38,6 +38,8 @@
 	<!-- Bootstrap  -->
 	<link rel="stylesheet" href="css/bootstrap.css">
 	<!-- Theme style  -->
+	<link rel="stylesheet" href="css/theme-style.css">
+		<!-- Page style  -->
 	<link rel="stylesheet" href="css/style.css">
 
 	<!--leaflet css -->
@@ -97,7 +99,22 @@
 		</div>
 
 		<div id="gtco-project">
-			<div class="container" id="map" style="height: 800px;">			SOME TEST
+			<div class="container" style="display:flex" >
+				<div class="side-bar">
+					<div class="check-box-side-bar">
+						<input type="checkbox" id="crime" value="crime" onclick = "updateCrimeInfoBox()"> Crime in the area<br>
+						<input type="checkbox" id="schools" value="schools" onchange = "toggleSchools(this)">  Schools<br>
+						<input type="checkbox" id="pubs" value="pubs" onchange = "togglePubs(this)">  Places to eat<br>
+						<input type="checkbox" id="bus-stops" value="bus-stops" onchange = "toggleBusStops(this)">  Bus stops<br>
+					</div>
+					<div class="info-side-bar">
+
+					</div>
+				</div>
+				<div class="container"> 
+					<div id="map" style="height: 800px;">
+					</div>
+				</div>
 			</div>
 		</div>
 
