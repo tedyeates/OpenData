@@ -1,5 +1,5 @@
 let pubs = [];
-let schools = [];
+var schools = [];
 var transport = [];
 //let results = [];
 //let postLatLong = {};
@@ -14,11 +14,12 @@ Promise.all([
       }
     }),
     d3.csv("data/schools.csv", function(d){
+    if(d.LAT !==null && d.LNG !== null && d.LAT !== "" && d.LNG !== "" && d.LNG!=="#N/A" && d.LAT!=="#N/A") 
         return {
           name: d.SCHNAME,
           postcode: d.POSTCODE,
           lat: d.LAT,
-          long: d.LONG,
+          lon: d.LNG,
           originalData: d
         }
     }),
