@@ -147,28 +147,6 @@ var updateCrimeDataBasedOnBounds  = function () {
 //Get updated crime data whenever the map moves
 map.on('moveend', updateMap);
 
-// add code for crime rate
-// create the control on the top left
-var crimeTick = L.control({position: 'topleft'});
-// what to do when it's added to the map 
-crimeTick.onAdd = function (map) {
-	var div = L.DomUtil.create('div', 'crimeRate');
-	//html for the control, in this case checkbox
-	div.innerHTML = '<form><input id="crimeRate" type="checkbox"/>Crime Rate Display</form>'; 
-	return div;
-};
-// actually add it
-crimeTick.addTo(map);
-// function that will be called when the checkbox is ticked
-function handleCrime() {
-	
-	alert("Clicked, checked = " + this.checked);
-}
-//add the handler so that the handleCrime function is called on click
-document.getElementById ("crimeRate").addEventListener ("click", handleCrime, false);
-
-
-
 
 //invoked when the crime check box is selected
 function updateCrimeInfoBox() {
