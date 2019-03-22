@@ -152,7 +152,7 @@ var updateCrimeDataBasedOnBounds  = function () {
 			error: function(error) {
 				console.log("GET request Error. Too much data returned.");
 				removeItemByClassName(className);
-				addInfoBoxToSideBar("Over 10,000 crimes over the last month" , className);
+				addInfoBoxToSideBar("Over 10,000 crimes over the last month, cannot display heatmap" , className);
 			}
 		});
 		}
