@@ -107,7 +107,7 @@
 						<input type="checkbox" id="crime" value="crime" onclick = "updateCrimeInfoBox()"> Crime in the area<br>
 						<input type="checkbox" id="schools" value="schools" onchange = "toggleSchools(this)">  Schools<br>
 						<input type="checkbox" id="pubs" value="pubs" onchange = "togglePubs(this)">  Places to eat<br>
-						<input type="checkbox" id="bus-stops" value="bus-stops" onchange = "toggleBusStops(this)">  Bus stops<br>
+						<input type="checkbox" id="bus-stops" value="bus-stops" onclick = "updateBusStopInfoBox()">  Bus stops<br>
 					</div>
 					<div class="info-side-bar">
 
@@ -173,9 +173,9 @@
 	<script src="lib/Control.Geocoder.js"></script>
 	
 	<!-- Code -->
+	<script src="js/dataLoading.js"></script>
 	<script src="js/geocoding.js"></script>
 	<script src="js/displayMap.js"></script>
-	<script src="js/dataLoading.js"></script>
 
 
 	</body>

@@ -6,6 +6,7 @@ var map = new L.Map("map", {
 .addLayer(new L.TileLayer("http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"));
 
 
+
 //set up geocoder
 var geocoder = new L.Control.Geocoder();
 	geocoder.addTo(map);
@@ -13,9 +14,11 @@ var geocoder = new L.Control.Geocoder();
 var showCrimeData = true;
 
 var numberOfCrimesPerArea = 0;	
+var numberOfBusStopsInArea = 0;
 	
-
-var heat;
+var busStopLayer = null;
+var heat=null;
+var bounds,boundsString;
 //function that runs on load
 function initialise () {
 	//uncheck crime checkbox
@@ -64,17 +67,15 @@ function addCrimeToHeat(data) {
 //When region on map changes, this function is called. 
 function updateMap() {
 
-	var bounds = map.getBounds();
-	var boundsString = bounds.getNorthEast().lat + "," + bounds.getNorthEast().lng + ":" + bounds.getNorthWest().lat + "," + bounds.getNorthWest().lng + ":" + bounds.getSouthWest().lat + "," + bounds.getSouthWest().lng + ":" + bounds.getSouthEast().lat + "," + bounds.getSouthEast().lng;
-
+	bounds = map.getBounds();
+	boundsString = bounds.getNorthEast().lat + "," + bounds.getNorthEast().lng + ":" + bounds.getNorthWest().lat + "," + bounds.getNorthWest().lng + ":" + bounds.getSouthWest().lat + "," + bounds.getSouthWest().lng + ":" + bounds.getSouthEast().lat + "," + bounds.getSouthEast().lng;
 	//crime
-	updateCrimeDataBasedOnBounds(boundsString);
+	updateCrimeInfoBox();
 
 	//schools
 
-
 	//bus stops
-
+	updateBusStopInfoBox();
 
 	//pubs
 	
@@ -82,11 +83,10 @@ function updateMap() {
 }
 
 //send a request for data and update the crime heat map
-var updateCrimeDataBasedOnBounds  = function (boundsString) {
+var updateCrimeDataBasedOnBounds  = function () {
 	if(showCrimeData){
 		var requestString = "https://data.police.uk/api/crimes-street/all-crime?poly=" + boundsString;
 		 //console.log(map.getBounds());
-		
 		$.ajax({
 			url: requestString,
 			type: "GET",
@@ -94,6 +94,7 @@ var updateCrimeDataBasedOnBounds  = function (boundsString) {
 				numberOfCrimesPerArea = result.length;
 				//update the number of crimes on the info box
 				updateCrimeInfoBox();
+				if(showCrimeData)
 				//go use the data and add it to the heatmap
 				addCrimeToHeat(result);
 				
@@ -137,6 +138,11 @@ function updateCrimeInfoBox() {
 	var checked = $('#crime').prop('checked');
 	var className = "crime-info";
 
+	//remove the old layer - this helps in not painting another layer on top of the old one, if the map zooms without the checkbox controls
+	if(heat !=null)
+			{heat.remove(map);}
+
+
 	//turn on crime stats
 	if(checked) {
 		//ennable repainting when map is moved
@@ -151,8 +157,6 @@ function updateCrimeInfoBox() {
 	else {
 
 		//remove heatmap
-		if(heat !=null)
-			{heat.remove(map);}
 		showCrimeData = false;
 		removeItemByClassName(className);
 	}
@@ -181,14 +185,6 @@ function togglePubs(checkbox) {
 
 }
 
-//invoked when the bus stop check box is selected
-function toggleBusStops(checkbox) {
-	
-	//remove bus stops
-
-	var className = "bus-stop-info";
-	checkbox.checked?addInfoBoxToSideBar(5 + " bus stops nearby" , className) : removeItemByClassName(className);
-}
 
 //Add info to the sidebar
 //@text - text to include in the box
@@ -210,8 +206,53 @@ function removeItemByClassName (className) {
 }
 
 
+function updateBusStopLayer() {
+	
+	
+	//reset the number of bus stops
+	numberOfBusStopsInArea = 0;
+	var markers = [];
 
+	console.log("searching for bus stops");
+	//loop through all bus stops
+	for(var i=0; i<transport.length; i++) {
+		var lat = transport[i].lat;
+		var long = transport[i].lon;
+		var coords = L.latLng(lat, long);
 
+		if(lat!==null && long !==null && bounds.contains(coords)){
+			markers.push(L.marker([lat, long]));
+			numberOfBusStopsInArea++;
+		}
+	} 
+
+	//add the bus stop layer
+	busStopLayer = L.featureGroup(markers).addTo(map);
+}
+
+function updateBusStopInfoBox () {
+	var checked = $('#bus-stops').prop('checked');
+	var className = "bus-stop-info";
+	
+	//remove the old layer
+	if(busStopLayer !== null){
+		map.removeLayer(busStopLayer);
+	}
+
+	//turn on bus stop layer
+	if(checked) {
+
+		updateBusStopLayer();
+		addInfoBoxToSideBar(numberOfBusStopsInArea + " bus stops in the area" , className);
+
+	}
+
+	//turn off bus stop layer
+	else {		
+		//remove info box
+		removeItemByClassName(className);
+	}
+}
 
 
 initialise();

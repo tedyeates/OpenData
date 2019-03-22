@@ -1,8 +1,8 @@
 let pubs = [];
 let schools = [];
-let transport = [];
-let results = [];
-let postLatLong = {};
+var transport = [];
+//let results = [];
+//let postLatLong = {};
 
 Promise.all([
     d3.csv("data/open_pubs.csv", function(d){
@@ -13,10 +13,12 @@ Promise.all([
         originalData: d
       }
     }),
-    d3.csv("data/school.csv", function(d){
+    d3.csv("data/schools.csv", function(d){
         return {
           name: d.SCHNAME,
           postcode: d.POSTCODE,
+          lat: d.LAT,
+          long: d.LONG,
           originalData: d
         }
     }),
@@ -93,3 +95,4 @@ function getSchools(){
 function getTransport(){
   return pubs;
 }
+
