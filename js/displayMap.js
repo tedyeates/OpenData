@@ -185,10 +185,7 @@ function addInfoBoxToSideBar (text, className) {
 	$('.' + className).remove();
 
 	var infoBox = {
-	    class: className,
-	    css: {
-	      "color": "Green"
-	    },
+	    class: className
 	};
 	var $div = $("<div>", infoBox);
 	  $div.html(text);

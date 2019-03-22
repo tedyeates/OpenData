@@ -12,25 +12,33 @@
 }
 
 .info-side-bar {
+    padding-top: 20px;
     overflow: auto;
 }
 
-.info-box {
-    
-    .crime-info{
 
-    }
-
-    .school-info{
-
-    }
-
-    .pub-info{
-
-    }
-
-    .bus-stop-info{
-
-
-    }
+.crime-info{
+    color: #2a2727e6;
+    background-color: #E77D67;
+    background-image: linear-gradient(rgba(255,255,255,.5), rgba(255,255,255,0));
 }
+
+.school-info{
+    color: #2a2727e6;
+    background-color: #B1CE64;
+    background-image: linear-gradient(rgba(255,255,255,.5), rgba(255,255,255,0));
+}
+
+.pub-info{
+    color: #2a2727e6;
+    background-color: #CE9964;
+    background-image: linear-gradient(rgba(255,255,255,.5), rgba(255,255,255,0));
+}
+
+.bus-stop-info{
+    color: #2a2727e6;
+    background-color: #BFD2E4;
+    background-image: linear-gradient(rgba(255,255,255,.5), rgba(255,255,255,0));
+
+}
+
