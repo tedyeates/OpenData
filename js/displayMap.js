@@ -16,7 +16,7 @@ var numberOfCrimesPerArea = 0;
 	
 
 var heat;
-//function that runs when the page is loaded
+//function that runs on load
 function initialise () {
 	//uncheck crime checkbox
 	updateMap();
@@ -44,7 +44,7 @@ function getHeatIntensityFromCrime(crimeName) {
 		default: return 0;
 	}
 }
-// 
+// create heatmap based on crime and add it to the map
 function addCrimeToHeat(data) {
 	// if heatmap exists, delete it so we dont stack the heatmaps
 	if(heat != null) {
@@ -61,6 +61,7 @@ function addCrimeToHeat(data) {
 };
 
 
+//When region on map changes, this function is called. 
 function updateMap() {
 
 	var bounds = map.getBounds();
@@ -68,9 +69,19 @@ function updateMap() {
 
 	//crime
 	updateCrimeDataBasedOnBounds(boundsString);
+
+	//schools
+
+
+	//bus stops
+
+
+	//pubs
 	
 
 }
+
+//send a request for data and update the crime heat map
 var updateCrimeDataBasedOnBounds  = function (boundsString) {
 	if(showCrimeData){
 		var requestString = "https://data.police.uk/api/crimes-street/all-crime?poly=" + boundsString;
@@ -81,10 +92,11 @@ var updateCrimeDataBasedOnBounds  = function (boundsString) {
 			type: "GET",
 			success: function(result) {
 				numberOfCrimesPerArea = result.length;
-				//go use the data and add it to the heatmap
-				addCrimeToHeat(result);
 				//update the number of crimes on the info box
 				updateCrimeInfoBox();
+				//go use the data and add it to the heatmap
+				addCrimeToHeat(result);
+				
 			},
 			// The Police API will 503 when >10k crimes for the area
 			error: function(error) {
