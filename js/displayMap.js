@@ -37,6 +37,17 @@ var bookIcon = L.icon({
     popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
 });
 
+
+var hatIcon =  L.icon({
+    iconUrl: 'images/hat-icon.png',
+
+    iconSize:     [40, 40], // size of the icon
+    shadowSize:   [50, 64], // size of the shadow
+    iconAnchor:   [22, 94], // point of the icon which will correspond to marker's location
+    shadowAnchor: [4, 62],  // the same for the shadow
+    popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
+});
+
 //set up geocoder
 var geocoder = new L.Control.Geocoder();
 geocoder.addTo(map);
@@ -311,7 +322,7 @@ function updateSchoolLayer() {
 		if(bounds.contains(coords)){       
 			let marker =  L.marker([lat, long], {
 				title:schools[i].name,
-				icon:bookIcon});
+				icon:hatIcon});
 			markers.push(marker);
 			marker.bindPopup(schools[i].name).openPopup();
 			numberOfSchoolsInArea++;
