@@ -205,27 +205,6 @@ function updateCrimeInfoBox() {
 
 }
 
-//invoked when the school check box is selected
-function toggleSchools(checkbox) {
-
-	//remove schools
-
-
-	var className = "school-info";
-	checkbox.checked?addInfoBoxToSideBar(5 + " schools around" , className) : removeItemByClassName(className);
-
-}
-
-//invoked when the pub check box is selected
-function togglePubs(checkbox) {
-
-	//remove pubs
-
-	var className = "pub-info";
-	checkbox.checked?addInfoBoxToSideBar(5 + " places to eat around" , className) : removeItemByClassName(className);
-
-}
-
 
 //Add info to the sidebar
 //@text - text to include in the box
