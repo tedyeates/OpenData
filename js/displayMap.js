@@ -17,6 +17,16 @@ var busIcon = L.icon({
     popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
 });
 
+var trainIcon = L.icon({
+    iconUrl: 'images/train-icon.png',
+
+    iconSize:     [40, 40], // size of the icon
+    shadowSize:   [50, 64], // size of the shadow
+    iconAnchor:   [22, 94], // point of the icon which will correspond to marker's location
+    shadowAnchor: [4, 62],  // the same for the shadow
+    popupAnchor:  [-3, -76] // point from which the popup should open relative to the iconAnchor
+});
+
 var drinkIcon = L.icon({
     iconUrl: 'images/drink-icon.png',
 
@@ -274,11 +284,20 @@ function updateBusStopLayer() {
 		var lat = transport[i].lat;
 		var long = transport[i].lon;
 		var coords = L.latLng(lat, long);
+		var chosenIcon;
+		//3 is bus stop, 2 is rail station, 1 is underground
+		if(transport[i].originalData.vehicle_type == 3) {
+			chosenIcon = busIcon;
+		} else {
+			chosenIcon = trainIcon;
+		}
 
 		if(lat!==null && long !==null && bounds.contains(coords)){
 			let marker =  L.marker([lat, long], {
 					title:transport[i].name,
-					icon:busIcon});
+					icon:chosenIcon
+					
+					});
 			markers.push(marker);
 			marker.bindPopup(transport[i].name).openPopup();
 			numberOfBusStopsInArea++;
@@ -302,7 +321,7 @@ function updateBusStopInfoBox () {
 	if(checked) {
 
 		updateBusStopLayer();
-		addInfoBoxToSideBar(numberOfBusStopsInArea + " bus stops in the area" , className);
+		addInfoBoxToSideBar(numberOfBusStopsInArea + " transport stops in the area" , className);
 
 	}
 
