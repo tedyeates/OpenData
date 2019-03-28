@@ -1,6 +1,7 @@
 let pubs = [];
 var schools = [];
 var transport = [];
+var housePricing = [];
 //let results = [];
 //let postLatLong = {};
 
@@ -32,12 +33,22 @@ Promise.all([
         lon: d.stop_lon,
         originalData: d
       }
+    }),
+	d3.csv("data/house_pricing_postcode.csv", function(d){
+
+      if(d.Postcode !==null && d.Overall_average !== null && d.Total_sales !== null) 
+      return {
+        postcode: d.Postcode,
+        totalSales: d.Total_sales,
+        originalData: d
+      }
     })
 
   ]).then(function(files) {
     pubs = files[0];
     schools = files[1];
     transport = files[2];
+	housePricing = files[3];
     // let postcodes = schools.map(school => {
     //   return school.originalData.POSTCODE;
     // });
