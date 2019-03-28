@@ -134,7 +134,7 @@ function updateMap() {
 	var zoom = map.getZoom();
 	console.log(zoom);
 
-	if(zoom >minZoomLevel) {
+	if(zoom > minZoomLevel) {
 		//remove the info box about zoom
 		removeItemByClassName('zoom-info');
 
@@ -152,6 +152,9 @@ function updateMap() {
 
 		//pubs
 		updatePubInfoBox();
+		
+		//house pricing
+		updateHousePriceInfoBox ();
 	}else{
 		//add info box about zoom
 		addInfoBoxToSideBar("Zoom in more or search in the top-right corner to view points of interest.", 'zoom-info');
@@ -161,6 +164,7 @@ function updateMap() {
 		removeItemByClassName('bus-stop-info');
 		removeItemByClassName('pub-info');
 		removeItemByClassName('school-info');
+		removeItemByClassName('house-price-info');
 
 		//remove all layers
 		if(busStopLayer!==null)
@@ -439,6 +443,44 @@ function updatePubInfoBox () {
 		updatePubLayer();
 		addInfoBoxToSideBar(numberOfPubsinArea + " pubs in the area" , className);
 
+	}
+
+	//turn off bus stop layer
+	else {		
+		//remove info box
+		removeItemByClassName(className);
+	}
+}
+
+function updateHousePriceInfoBox () {
+	var checked = $('#house-prices').prop('checked');
+	var className = "house-price-info";
+	var averagePrice = 0;
+	
+	//turn on bus stop layer
+	if(checked && map.getZoom()>minZoomLevel) {
+		
+		nearestPostcode(map.getCenter().lng, map.getCenter().lat, function(result) {
+			if(result != null){
+				console.log(result[0].postcode);
+				var matchedRecord;
+				//try to find a match for the postcode directly
+				matchedRecord = housePricing.filter(record => result[0].postcode.includes(record.postcode))[0];
+				//if you cant get a full match, just do a rough area match 
+				if(matchedRecord != null) {
+					//display for exact postcode
+					addInfoBoxToSideBar("Average house price of " + result[0].postcode + ": £" + matchedRecord.averagePrice , className);
+				} else {
+					//doing the display for rough area
+					matchedRecord = housePricing.filter(record => record.postcode.substring(0,4) === result[0].postcode.substring(0,4))[0];
+					addInfoBoxToSideBar("Average house price of " + matchedRecord.postcode.substring(0, matchedRecord.postcode.length - 1) + " area: £" + matchedRecord.averagePrice , className);
+				}
+				
+			}
+		});
+		
+		
+		//addInfoBoxToSideBar("Average Price: £" + averagePrice , className);
 	}
 
 	//turn off bus stop layer

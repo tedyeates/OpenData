@@ -20,6 +20,16 @@ function getLocationFromQuery(query, callback) {
 	nominatim.geocode(query, callback(result));
 }
 
+function nearestPostcode(longitude, latitude, callback) {
+	var url = "https://api.postcodes.io/postcodes?lon=" + longitude + "&lat=" + latitude;
+
+	$.get( url, function( data ) {
+		if(data.status === 200){
+			callback(data.result);
+		}
+	});
+}
+
 function getLocationFromPostcodeBulk(postcodes, callback){
 	var url = "https://api.postcodes.io/postcodes/";
 	console.log("hello");

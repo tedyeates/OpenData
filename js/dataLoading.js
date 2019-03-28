@@ -40,6 +40,7 @@ Promise.all([
       return {
         postcode: d.Postcode,
         totalSales: d.Total_sales,
+		averagePrice: d.Overall_average,
         originalData: d
       }
     })

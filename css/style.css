@@ -46,6 +46,13 @@
 
 }
 
+.house-price-info{
+    color: #2a2727e6;
+    background-color: #5cff26;
+    background-image: linear-gradient(rgba(255,255,255,.5), rgba(255,255,255,0));
+
+}
+
 .zoom-info {
     color: #2a2727e6;
     background-color: #BFD2E4;
