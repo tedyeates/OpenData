@@ -563,7 +563,7 @@ function updateOverallInfoBox () {
 		}
 		
 		var rating = total / numChecked;
-		if(rating > 0) {
+		if(!isNaN(rating)) {
 			addInfoBoxToSideBar(Math.round(total / numChecked * 100) + "% overall rating!" , className);
 		} else {
 			addInfoBoxToSideBar("Please select one or more filters to calculate your overall rating!" , className);
