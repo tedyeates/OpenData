@@ -98,14 +98,15 @@
 			<div class="container" style="display:flex" >
 				<div class="side-bar">
 					<div class="check-box-side-bar">
-						<input type="checkbox" id="crime" value="crime" onclick = "updateCrimeInfoBox()"> Crime in the Area<br>
+						<input type="checkbox" id="crime" value="crime" onclick = "updateCrimeInfoBox()"> Crime<br>
 						<input type="checkbox" id="schools" value="schools" onclick = "updateSchoolInfoBox()">  Schools<br>
 						<input type="checkbox" id="pubs" value="pubs" onclick="updatePubInfoBox()">  Pubs<br>
 						<input type="checkbox" id="bus-stops" value="bus-stops" onclick = "updateBusStopInfoBox()">  Transport Stops<br>
 						<input type="checkbox" id="house-prices" value="house-prices" onclick = "updateHousePriceInfoBox()">  House Pricing<br>
+						<input type="checkbox" id="overall" value="overall" onclick = "updateOverallInfoBox()">  Overall Rating<br>
 					</div>
 					<div class="info-side-bar">
-
+						
 					</div>
 				</div>
 				<div class="container"> 
@@ -161,6 +162,7 @@
 	<!-- Leaflet -->
 	<script src="lib/leaflet/leaflet.js"></script>
 	<script src="js/leaflet-heat.js"></script>
+	<script src="js/leaflet-geoutil.js"></script>
 
 	<!--geocoder -->
 	<script src="lib/Control.Geocoder.js"></script>

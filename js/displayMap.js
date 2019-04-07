@@ -68,6 +68,7 @@ var numberOfCrimesPerArea = 0;
 var numberOfBusStopsInArea = 0;
 var numberOfSchoolsInArea = 0;
 var numberOfPubsinArea = 0;
+var tooManyCrimes = false;
 
 var busStopLayer = null;
 var schoolLayer = null;
@@ -132,7 +133,6 @@ function updateMap() {
 
 
 	var zoom = map.getZoom();
-	console.log(zoom);
 
 	if(zoom > minZoomLevel) {
 		//remove the info box about zoom
@@ -155,6 +155,9 @@ function updateMap() {
 		
 		//house pricing
 		updateHousePriceInfoBox ();
+		
+		//overall rating
+		updateOverallInfoBox ()
 	}else{
 		//add info box about zoom
 		addInfoBoxToSideBar("Zoom in more or search in the top-right corner to view points of interest.", 'zoom-info');
@@ -165,6 +168,7 @@ function updateMap() {
 		removeItemByClassName('pub-info');
 		removeItemByClassName('school-info');
 		removeItemByClassName('house-price-info');
+		removeItemByClassName('overall-info');
 
 		//remove all layers
 		if(busStopLayer!==null)
@@ -195,6 +199,9 @@ var updateCrimeDataBasedOnBounds  = function () {
 		 	type: "GET",
 		 	success: function(result) {
 		 		numberOfCrimesPerArea = result.length;
+				tooManyCrimes = false;
+				updateOverallInfoBox();
+				
 				//update the number of crimes on the info box
 				//updateCrimeInfoBox();  <---commented this out but it might break something
 				if(showCrimeData) {
@@ -210,6 +217,7 @@ var updateCrimeDataBasedOnBounds  = function () {
 				console.log("GET request Error. Too much data returned.");
 				removeItemByClassName(className);
 				addInfoBoxToSideBar("Over 10,000 crimes over the last month, cannot display heatmap" , className);
+				tooManyCrimes = true;
 			}
 		});
 		}
@@ -452,12 +460,12 @@ function updatePubInfoBox () {
 	}
 }
 
+var averagePrice = 0;
 function updateHousePriceInfoBox () {
 	var checked = $('#house-prices').prop('checked');
 	var className = "house-price-info";
-	var averagePrice = 0;
 	
-	//turn on bus stop layer
+	
 	if(checked && map.getZoom()>minZoomLevel) {
 		
 		nearestPostcode(map.getCenter().lng, map.getCenter().lat, function(result) {
@@ -470,17 +478,18 @@ function updateHousePriceInfoBox () {
 				if(matchedRecord != null) {
 					//display for exact postcode
 					addInfoBoxToSideBar("Average house price of " + result[0].postcode + ": £" + matchedRecord.averagePrice , className);
+
+					
 				} else {
 					//doing the display for rough area
 					matchedRecord = housePricing.filter(record => record.postcode.substring(0,4) === result[0].postcode.substring(0,4))[0];
 					addInfoBoxToSideBar("Average house price of " + matchedRecord.postcode.substring(0, matchedRecord.postcode.length - 1) + " area: £" + matchedRecord.averagePrice , className);
 				}
+				averagePrice = matchedRecord.averagePrice;
+				
 				
 			}
 		});
-		
-		
-		//addInfoBoxToSideBar("Average Price: £" + averagePrice , className);
 	}
 
 	//turn off bus stop layer
@@ -489,5 +498,83 @@ function updateHousePriceInfoBox () {
 		removeItemByClassName(className);
 	}
 }
+
+function updateOverallInfoBox () {
+	var checked = $('#overall').prop('checked');
+	var className = "overall-info";
+	
+	
+	var numChecked = 0; //value used to determine average
+	var total = 0;
+	if(checked && map.getZoom()>minZoomLevel) {
+		if($('#house-prices').prop('checked')) {
+			numChecked++;
+			var houseIndex = housePricingSorted.findIndex(function(item, i) {
+				return item.averagePrice === averagePrice;
+			});
+			
+			//get what percent this house is cheaper than all of the average house prices in the UK
+			//basically "this house is within the top X% of houses in terms of pricing"
+			total += houseIndex / housePricingSorted.length;
+			
+		}
+		if($('#schools').prop('checked')) {
+			numChecked++;
+			if(schoolLayer.getLayers().length > 0) {
+				//console.log(schoolLayer.getLayers());
+				var distanceToClosestSchool = L.GeometryUtil.closestLayer(map, [schoolLayer], map.getCenter());
+				//L.marker([map.getCenter().lat, map.getCenter().lng]).addTo(map);
+				var distance = map.distance(map.getCenter(), L.latLng(distanceToClosestSchool.latlng.lat, distanceToClosestSchool.latlng.lng));
+				
+				total += 1 - (distance / 3000);				
+				
+				//L.marker([distanceToClosestSchool.latlng.lat, distanceToClosestSchool.latlng.lng]).addTo(map);
+			} 			
+		}
+		if($('#crime').prop('checked') && !tooManyCrimes) {
+			numChecked++;
+			//console.log(numberOfCrimesPerArea + " / (5000 / (" + map.getZoom() + " / 4)) = " + numberOfCrimesPerArea + " / " + 5000 / (map.getZoom() / 4) );
+			total += 1 - (numberOfCrimesPerArea / Math.pow((20 - map.getZoom()), 4.5)) ;
+				
+		}
+		if($('#bus-stops').prop('checked')) {
+			numChecked++;
+			if(busStopLayer.getLayers().length > 0) {
+				var distanceToClosestSchool = L.GeometryUtil.closestLayer(map, [busStopLayer], map.getCenter());
+				//L.marker([map.getCenter().lat, map.getCenter().lng]).addTo(map);
+				var distance = map.distance(map.getCenter(), L.latLng(distanceToClosestSchool.latlng.lat, distanceToClosestSchool.latlng.lng));
+				
+				total += 1 - (distance / 1000);				
+				
+				//L.marker([distanceToClosestSchool.latlng.lat, distanceToClosestSchool.latlng.lng]).addTo(map);
+			} 			
+		}
+		if($('#pubs').prop('checked')) {
+			numChecked++;
+			if(pubLayer.getLayers().length > 0) {
+				var distanceToClosestSchool = L.GeometryUtil.closestLayer(map, [pubLayer], map.getCenter());
+				//L.marker([map.getCenter().lat, map.getCenter().lng]).addTo(map);
+				var distance = map.distance(map.getCenter(), L.latLng(distanceToClosestSchool.latlng.lat, distanceToClosestSchool.latlng.lng));
+				
+				total += 1 - (distance / 5000);				
+				
+				//L.marker([distanceToClosestSchool.latlng.lat, distanceToClosestSchool.latlng.lng]).addTo(map);
+			} 
+		}
+		
+		var rating = total / numChecked;
+		if(rating > 0) {
+			addInfoBoxToSideBar(Math.round(total / numChecked * 100) + "% overall rating!" , className);
+		} else {
+			addInfoBoxToSideBar("Please select one or more filters to calculate your overall rating!" , className);
+		}
+		
+		
+	} else {
+		removeItemByClassName(className);
+	}
+
+}
+
 
 initialise();

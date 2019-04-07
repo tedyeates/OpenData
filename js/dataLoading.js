@@ -2,6 +2,7 @@ let pubs = [];
 var schools = [];
 var transport = [];
 var housePricing = [];
+var housePricingSorted = [];
 //let results = [];
 //let postLatLong = {};
 
@@ -50,6 +51,12 @@ Promise.all([
     schools = files[1];
     transport = files[2];
 	housePricing = files[3];
+	
+	housePricingSorted = housePricing.sort(function(a ,b) {
+		return d3.descending(+a.averagePrice, +b.averagePrice);
+	}); 
+	
+	
     // let postcodes = schools.map(school => {
     //   return school.originalData.POSTCODE;
     // });
@@ -109,4 +116,6 @@ function getSchools(){
 function getTransport(){
   return pubs;
 }
+
+
 
