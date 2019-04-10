@@ -534,8 +534,8 @@ function updateOverallInfoBox () {
 		if($('#crime').prop('checked') && !tooManyCrimes) {
 			numChecked++;
 			//console.log(numberOfCrimesPerArea + " / (5000 / (" + map.getZoom() + " / 4)) = " + numberOfCrimesPerArea + " / " + 5000 / (map.getZoom() / 4) );
-			total += 1 - (numberOfCrimesPerArea / Math.pow((20 - map.getZoom()), 4.5)) ;
-				
+			var calc = 1 - (numberOfCrimesPerArea / Math.pow((20 - map.getZoom()), 4.5)) ;
+			total += Math.min(Math.max(calc, 0), 1);
 		}
 		if($('#bus-stops').prop('checked')) {
 			numChecked++;
@@ -564,7 +564,7 @@ function updateOverallInfoBox () {
 		
 		var rating = total / numChecked;
 		if(!isNaN(rating)) {
-			addInfoBoxToSideBar(Math.round(total / numChecked * 100) + "% overall rating!" , className);
+			addInfoBoxToSideBar(Math.round(total / numChecked * 100) + "/100 overall rating!" , className);
 		} else {
 			addInfoBoxToSideBar("Please select one or more filters to calculate your overall rating!" , className);
 		}
