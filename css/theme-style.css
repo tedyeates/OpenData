@@ -304,10 +304,12 @@ h1, h2, h3, h4, h5, h6, figure {
 
 .dt {
   display: table;
+  margin: auto;
 }
 .dt .dtc {
   display: table-cell;
   vertical-align: middle;
+
 }
 
 .gradient-text {
