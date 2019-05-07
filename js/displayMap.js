@@ -515,7 +515,8 @@ function updateOverallInfoBox () {
 			
 			//get what percent this house is cheaper than all of the average house prices in the UK
 			//basically "this house is within the top X% of houses in terms of pricing"
-			total += houseIndex / housePricingSorted.length;
+			var calc = houseIndex / housePricingSorted.length;
+			total += Math.min(Math.max(calc, 0), 1);
 			
 		}
 		if($('#schools').prop('checked')) {
@@ -525,8 +526,8 @@ function updateOverallInfoBox () {
 				var distanceToClosestSchool = L.GeometryUtil.closestLayer(map, [schoolLayer], map.getCenter());
 				//L.marker([map.getCenter().lat, map.getCenter().lng]).addTo(map);
 				var distance = map.distance(map.getCenter(), L.latLng(distanceToClosestSchool.latlng.lat, distanceToClosestSchool.latlng.lng));
-				
-				total += 1 - (distance / 3000);				
+				var calc = 1 - (distance / 3000);
+				total += Math.min(Math.max(calc, 0), 1);		
 				
 				//L.marker([distanceToClosestSchool.latlng.lat, distanceToClosestSchool.latlng.lng]).addTo(map);
 			} 			
@@ -544,7 +545,8 @@ function updateOverallInfoBox () {
 				//L.marker([map.getCenter().lat, map.getCenter().lng]).addTo(map);
 				var distance = map.distance(map.getCenter(), L.latLng(distanceToClosestSchool.latlng.lat, distanceToClosestSchool.latlng.lng));
 				
-				total += 1 - (distance / 1000);				
+				var calc = 1 - (distance / 1000);
+				total += Math.min(Math.max(calc, 0), 1);	
 				
 				//L.marker([distanceToClosestSchool.latlng.lat, distanceToClosestSchool.latlng.lng]).addTo(map);
 			} 			
@@ -556,7 +558,8 @@ function updateOverallInfoBox () {
 				//L.marker([map.getCenter().lat, map.getCenter().lng]).addTo(map);
 				var distance = map.distance(map.getCenter(), L.latLng(distanceToClosestSchool.latlng.lat, distanceToClosestSchool.latlng.lng));
 				
-				total += 1 - (distance / 5000);				
+				var calc = 1 - (distance / 5000);
+				total += Math.min(Math.max(calc, 0), 1);			
 				
 				//L.marker([distanceToClosestSchool.latlng.lat, distanceToClosestSchool.latlng.lng]).addTo(map);
 			} 
